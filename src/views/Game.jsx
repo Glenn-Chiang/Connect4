@@ -178,11 +178,8 @@ function Game({returnToMenu}) {
 
       function checkDiagonalUp(rowId, colId) {
         const startRow = rowId + Math.min(numRows - 1 - rowId, colId);
-        console.log('Start row: ' + startRow)
         const startCol = colId - Math.min(numRows - 1 - rowId, colId);
-        console.log('Start col: ' + startCol)
         const endRow = rowId - Math.min(rowId, numCols - 1 - colId);
-        console.log('End row: ' + endRow)
         const diagonalArray = [];
         for (let i = 0; i <= startRow - endRow; i++) {
           diagonalArray.push(newMatrix[startRow - i][startCol + i]);
@@ -192,7 +189,7 @@ function Game({returnToMenu}) {
         const winningPosition = diagonalString.indexOf(winningLine);
         if (winningPosition !== -1) {
           setWinningPositions(
-            Array.from({length: winningNumber}, (val, i) => [startRow + winningPosition - i, startCol + winningPosition + i])
+            Array.from({length: winningNumber}, (val, i) => [startRow - winningPosition - i, startCol + winningPosition + i])
           )
         }
         return winningPosition !== -1;
