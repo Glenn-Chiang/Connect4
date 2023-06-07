@@ -1,3 +1,7 @@
+h1 {
+    padding: 40px;
+}
+
 div.menu-btns {
     display: flex;
     flex-direction: column;
@@ -23,4 +27,23 @@ div.menu-btns button{
 
 div.menu-btns button:hover {
     background-color: darkturquoise;
+}
+
+div.logo {
+    display: flex;
+    gap: 10px;
+}
+
+div.logo div.token {
+    width: 60px;
+    height: 60px;
+    border-radius: 34px;
+}
+
+div.logo div.token:nth-child(odd) {
+    background-color: gold;
+}
+
+div.logo div.token:nth-child(even) {
+    background-color: red;
 }

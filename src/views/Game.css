@@ -19,9 +19,13 @@ body {
   background-color: lightseagreen;
   border: none;
   border-radius: 10px;
-  padding: 10px;
+  padding: 0px;
   font-size: 1.5rem;
   transition: 0.2s;
+}
+
+.drop-btn i {
+  padding: 10px;
 }
 
 .drop-btn:hover {
@@ -60,7 +64,7 @@ body {
   background-color: red;
 }
 
-.slot.last-move {
+.slot.last-move, .slot.ghost {
   border: 2px solid white;
 }
 

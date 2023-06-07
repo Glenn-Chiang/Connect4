@@ -4,6 +4,12 @@ import './MainMenu.css'
 export default function MainMenu({startGame}) {
   return (
     <>
+      <div className='logo'>
+        <div className='token'></div>
+        <div className='token'></div>
+        <div className='token'></div>
+        <div className='token'></div>
+      </div>
       <h1>CONNECT 4</h1>
       <div className='menu-btns'>
         <button className='play' onClick={() => startGame()}>

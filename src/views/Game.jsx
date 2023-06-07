@@ -3,21 +3,27 @@ import './Game.css'
 import { useState } from 'react';
 
 
-function Board({boardMatrix, lastMovePosition, winningPositions}) {  
+function Board({boardMatrix, ghostPosition, lastMovePosition, winningPositions}) {  
 
   function Row({ rowData, rowId }) {
     const row = rowData.map((val, colId) => {
       const classList = ['slot', (val === 1 ? 'yellow' : val === 2 ? 'red' : '')];
+
+      // Highlight empty slot where token will be dropped, depending on which column the player is hovering over
+      if (ghostPosition !== null && rowId === ghostPosition[0] && colId === ghostPosition[1]) {
+        classList.push('ghost');
+      }
+
+      // Highlight tokens if they are part of a winning line
+      if (winningPositions !== null && winningPositions.some(position => position[0] === rowId && position[1] === colId)) {
+        classList.push('win');
+      }
 
       // Highlight the most recently dropped token
       if (lastMovePosition !== null && rowId === lastMovePosition[0] && colId === lastMovePosition[1]) {
         classList.push('last-move');
       }
       
-      // Highlight tokens if they are part of a winning line
-      if (winningPositions !== null && winningPositions.some(position => position[0] === rowId && position[1] === colId)) {
-        classList.push('win');
-      }
 
       return <div className={classList.join(' ')} key={colId}></div>;
     });
@@ -39,10 +45,12 @@ function Board({boardMatrix, lastMovePosition, winningPositions}) {
 }
   
   
-function DropBtnBar({numBtns, handleMove}) { // Bar containing drop buttons  
-  function DropBtn({onBtnClick}) { // Click button to drop token into column
+function DropBtnBar({numBtns, handleMove, handleHover, handleStopHover}) { // Bar containing drop buttons  
+  function DropBtn({onBtnClick, onHover, onStopHover}) { // Click button to drop token into column
     return (
-      <button className='drop-btn' onClick={onBtnClick}>
+      <button className='drop-btn' onClick={onBtnClick} 
+        onMouseOut= {onHover}
+        onMouseLeave={onStopHover}>
         <i className='fa fa-arrow-down'></i>
       </button>
     )
@@ -50,7 +58,13 @@ function DropBtnBar({numBtns, handleMove}) { // Bar containing drop buttons
 
   let dropBtns = [];
   for (let i = 0; i < numBtns; i++) {
-    dropBtns.push(<DropBtn key={i} onBtnClick={() => handleMove(i)}/>);
+    dropBtns.push(
+      <DropBtn key={i} 
+        onBtnClick={() => handleMove(i)} 
+        onHover={() => handleHover(i)}
+        onStopHover={() => handleStopHover()}
+      />
+    );
   }
   return (
     <div className='drop-bar'>{dropBtns}</div>
@@ -72,8 +86,29 @@ function Game({returnToMenu}) {
   const [moveNum, setMoveNum] = useState(0);
 	const [gameActive, setGameActive] = useState(true);
 
+  const [ghostPosition, setGhostPosition] = useState(null);
   const [lastMovePosition, setLastMovePosition] = useState(null);
   const [winningPositions, setWinningPositions] = useState(null);
+
+  function handleHover(colId) { // When player hovers over drop-btn, ghost token is shown in board
+    if (!gameActive) {
+      return;
+    }
+
+    setGhostPosition(null);
+
+    const newMatrix = boardMatrix.slice();
+    for (let i = numRows - 1; i >= 0 ; i--) {
+      if (!newMatrix[i][colId]) { //Available slot -> will show ghost token here
+        setGhostPosition([i, colId]);
+        return;
+      }
+    }
+  }
+
+  function handleStopHover() {
+    setGhostPosition(null);
+  }
 
   function handleMove(colId) {
 		if (!gameActive) {
@@ -123,11 +158,47 @@ function Game({returnToMenu}) {
         return winningPosition !== -1;
       }
 
-      function checkDiagonal(rowId, colId) {
-        rowId, colId
+      function checkDiagonalDown(rowId, colId) {
+        const startRow = rowId - Math.min(rowId, colId);
+        const startCol = colId - Math.min(rowId, colId);
+        const endRow = rowId + Math.min(numRows - 1 - rowId, numCols - 1 - colId);
+        const diagonalArray = [];
+        for (let i=0; i <= endRow - startRow; i++) {
+          diagonalArray.push(newMatrix[startRow + i][startCol + i]);
+        }
+        const diagonalString = diagonalArray.join('');
+        const winningPosition = diagonalString.indexOf(winningLine);
+        if (winningPosition !== -1) {
+          setWinningPositions(
+            Array.from({length: winningNumber}, (val, i) => [startRow + winningPosition + i, startCol + winningPosition + i])
+          )
+        }
+        return winningPosition !== -1;
+      }
+
+      function checkDiagonalUp(rowId, colId) {
+        const startRow = rowId + Math.min(numRows - 1 - rowId, colId);
+        console.log('Start row: ' + startRow)
+        const startCol = colId - Math.min(numRows - 1 - rowId, colId);
+        console.log('Start col: ' + startCol)
+        const endRow = rowId - Math.min(rowId, numCols - 1 - colId);
+        console.log('End row: ' + endRow)
+        const diagonalArray = [];
+        for (let i = 0; i <= startRow - endRow; i++) {
+          diagonalArray.push(newMatrix[startRow - i][startCol + i]);
+        }
+        const diagonalString = diagonalArray.join('');
+        console.log(diagonalString)
+        const winningPosition = diagonalString.indexOf(winningLine);
+        if (winningPosition !== -1) {
+          setWinningPositions(
+            Array.from({length: winningNumber}, (val, i) => [startRow + winningPosition - i, startCol + winningPosition + i])
+          )
+        }
+        return winningPosition !== -1;
       }
 			
-      return checkRow(rowId) || checkCol(colId) || checkDiagonal(rowId, colId);
+      return checkRow(rowId) || checkCol(colId) || checkDiagonalDown(rowId, colId) || checkDiagonalUp(rowId, colId);
     }
 
     const rowId = dropToken(colId); // rowId of slot that token was dropped in 
@@ -148,7 +219,7 @@ function Game({returnToMenu}) {
     <>
       <h1>Connect 4</h1>
       <Prompt moveNum={moveNum} gameActive={gameActive}/>
-      <DropBtnBar handleMove={handleMove} numBtns={numCols}/>
+      <DropBtnBar handleMove={handleMove} handleHover={handleHover} handleStopHover={handleStopHover} numBtns={numCols}/>
 			<div className='game-area'>
 
 				<div className='undo-restart'>
@@ -160,7 +231,7 @@ function Game({returnToMenu}) {
           </button>
 				</div>
 
-        <Board boardMatrix={boardMatrix} lastMovePosition={lastMovePosition} winningPositions={winningPositions}/>
+        <Board boardMatrix={boardMatrix} ghostPosition={ghostPosition} lastMovePosition={lastMovePosition} winningPositions={winningPositions}/>
 
         <div className='menu'>
           <button className='back-to-menu' onClick={() => returnToMenu()}>
