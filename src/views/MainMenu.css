@@ -1,0 +1,26 @@
+div.menu-btns {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+}
+
+div.menu-btns button{
+    width: 160px;
+    padding: 10px;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+
+    background-color: lightseagreen;
+    border: none;
+    border-radius: 80px;
+    font-family: montserrat;
+    font-size: 1.5rem;
+    color: white;
+}
+
+div.menu-btns button:hover {
+    background-color: darkturquoise;
+}
