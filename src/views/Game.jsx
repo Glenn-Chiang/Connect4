@@ -81,14 +81,15 @@ function Game({updateScores, returnToMenu}) {
   }
 
   const [boardHistory, setBoardHistory] = useState([createBoardMatrix(numRows, numCols)]);
-  const [moveNum, setMoveNum] = useState(0);
-  const currentBoard = boardHistory[moveNum];
-	
+  const [moveNum, setMoveNum] = useState(0);	
+  const [moveHistory, setMoveHistory] = useState([null]);
   const [ghostPosition, setGhostPosition] = useState(null);
-  const [lastMovePosition, setLastMovePosition] = useState(null);
   const [winningPositions, setWinningPositions] = useState(null);
   
   const [gameActive, setGameActive] = useState(true);
+  
+  const currentBoard = boardHistory[moveNum];
+  const lastMove = moveHistory[moveNum];
   
   function handleHover(colId) { // When player hovers over drop-btn, ghost token is shown in board
     if (!gameActive) {
@@ -97,9 +98,8 @@ function Game({updateScores, returnToMenu}) {
 
     setGhostPosition(null);
 
-    const newMatrix = currentBoard.slice();
     for (let i = numRows - 1; i >= 0 ; i--) {
-      if (!newMatrix[i][colId]) { //Available slot -> will show ghost token here
+      if (!currentBoard[i][colId]) { //Available slot -> will show ghost token here
         setGhostPosition([i, colId]);
         return;
       }
@@ -115,6 +115,11 @@ function Game({updateScores, returnToMenu}) {
       return;
     }
     setMoveNum(moveNum - 1);
+  }
+
+  function restartGame() {
+    setMoveNum(0);
+    setBoardHistory([createBoardMatrix(numRows, numCols)]);
   }
 
   function handleMove(colId) {
@@ -207,7 +212,8 @@ function Game({updateScores, returnToMenu}) {
     const rowId = dropToken(colId); // rowId of slot that token was dropped in 
     if (rowId !== null) { // If token was dropped successfully, i.e. valid move was made
       setBoardHistory([...boardHistory.slice(0, moveNum + 1), newBoard]); 
-      setLastMovePosition([rowId, colId]); // [rowId, colId] of positon where token was dropped
+      const lastMove = [rowId, colId];
+      setMoveHistory([...moveHistory.slice(0, moveNum + 1), lastMove]); // [rowId, colId] of positon where token was dropped
 
       if (checkWin(rowId)) {
         setGameActive(false);
@@ -230,12 +236,12 @@ function Game({updateScores, returnToMenu}) {
 					<button className='undo-btn' onClick={() => undoMove()}>
             <i className='fa fa-undo'></i>
           </button>
-					<button className='restart-btn' onClick={() => undoMove()}>
+					<button className='restart-btn' onClick={() => restartGame()}>
             <i className='fa fa-refresh'></i>
           </button>
 				</div>
 
-        <Board boardMatrix={currentBoard} ghostPosition={ghostPosition} lastMovePosition={lastMovePosition} winningPositions={winningPositions}/>
+        <Board boardMatrix={currentBoard} ghostPosition={ghostPosition} lastMovePosition={lastMove} winningPositions={winningPositions}/>
 
         <div className='menu'>
           <button className='back-to-menu' onClick={() => returnToMenu()}>
