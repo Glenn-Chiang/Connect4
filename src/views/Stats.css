@@ -18,9 +18,15 @@ div.scores > div {
 }
 
 div.scores div.yellow .player {
-    color: yellow;
+    color: gold;
 }
 
 div.scores div.red .player {
     color: red;
+}
+
+div.menu button.clear-scores {
+    width: auto;
+    font-family: montserrat;
+    /* background-color: lightcoral; */
 }

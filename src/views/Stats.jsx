@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import './Stats.css'
 
-export default function Stats({scores, returnToMenu}) {
+export default function Stats({scores, clearScores, returnToMenu}) {
   return(
     <>
       <h1>Scores</h1>
@@ -16,6 +16,9 @@ export default function Stats({scores, returnToMenu}) {
         </div>
       </div>
       <div className='menu'>
+        <button className='clear-scores' onClick={() => clearScores()}>
+          Clear scores
+        </button>
         <button className='back-to-menu' onClick={() => returnToMenu()}>
           <i className='fa fa-home'></i>     
         </button>
