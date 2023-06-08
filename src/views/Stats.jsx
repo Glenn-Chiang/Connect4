@@ -15,8 +15,8 @@ export default function Stats({scores, clearScores, returnToMenu}) {
           <span className='score'>{scores.red}</span>
         </div>
         <div className="tie">
-          <span>Ties</span>
-          <span className='score'>{scores.ties}</span>
+          <span>Tie</span>
+          <span className='score'>{scores.tie}</span>
         </div>
       </div>
       <div className='menu'>

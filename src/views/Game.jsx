@@ -228,7 +228,6 @@ function Game({updateScores, returnToMenu}) {
       else if (moveNum === numSlots - 1) {
         setGameActive(false);
         updateScores('tie');
-        // return;    
       }
       
       setMoveNum(moveNum + 1);
