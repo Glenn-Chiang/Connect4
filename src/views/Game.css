@@ -99,6 +99,8 @@ div.undo-restart, div.menu {
 div.undo-restart, div.menu {
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  align-items: center;
   gap: 20px;
 }
 

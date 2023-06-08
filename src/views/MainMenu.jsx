@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import './MainMenu.css'
 
-export default function MainMenu({startGame}) {
+export default function MainMenu({startGame, viewStats}) {
   return (
     <>
       <div className='logo'>
@@ -16,7 +16,7 @@ export default function MainMenu({startGame}) {
           <i className='fa fa-play'></i>
           Play
         </button>
-        <button className='stats'>
+        <button className='stats' onClick={() => viewStats()}>
           <i className='fa fa-bar-chart'></i>
           Stats
         </button>

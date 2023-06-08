@@ -72,7 +72,7 @@ function DropBtnBar({numBtns, handleMove, handleHover, handleStopHover}) { // Ba
 }
 
 
-function Game({returnToMenu}) {
+function Game({updateScores, returnToMenu}) {
   const numRows = 6;
   const numCols = 7;
   
@@ -80,16 +80,16 @@ function Game({returnToMenu}) {
     return Array.from({ length: numRows }, () => Array(numCols).fill(0));
   }
 
-  const [boardMatrix, setBoardMatrix] = useState(createBoardMatrix(numRows, numCols));
-  // const [boardHistory, setBoardHistory] = useState([createBoardMatrix(numRows, numCols)]);
-
+  const [boardHistory, setBoardHistory] = useState([createBoardMatrix(numRows, numCols)]);
   const [moveNum, setMoveNum] = useState(0);
-	const [gameActive, setGameActive] = useState(true);
-
+  const currentBoard = boardHistory[moveNum];
+	
   const [ghostPosition, setGhostPosition] = useState(null);
   const [lastMovePosition, setLastMovePosition] = useState(null);
   const [winningPositions, setWinningPositions] = useState(null);
-
+  
+  const [gameActive, setGameActive] = useState(true);
+  
   function handleHover(colId) { // When player hovers over drop-btn, ghost token is shown in board
     if (!gameActive) {
       return;
@@ -97,7 +97,7 @@ function Game({returnToMenu}) {
 
     setGhostPosition(null);
 
-    const newMatrix = boardMatrix.slice();
+    const newMatrix = currentBoard.slice();
     for (let i = numRows - 1; i >= 0 ; i--) {
       if (!newMatrix[i][colId]) { //Available slot -> will show ghost token here
         setGhostPosition([i, colId]);
@@ -110,19 +110,33 @@ function Game({returnToMenu}) {
     setGhostPosition(null);
   }
 
+  function undoMove() {
+    if (moveNum === 0) {
+      return;
+    }
+    setMoveNum(moveNum - 1  );
+  }
+
+  function redoMove() {
+    if (moveNum === boardHistory.length - 1) {
+      return;
+    }
+    setMoveNum(moveNum + 1);
+  }
+
   function handleMove(colId) {
 		if (!gameActive) {
 			return;
 		}
 
-    const newMatrix = boardMatrix.slice();
+    const newBoard = currentBoard.slice();
     const moveValue = moveNum % 2 === 0 ? 1 : 2;
 
     function dropToken(colId) {
       // Find lowest empty slot in column
       for (let i = numRows - 1; i >= 0 ; i--) {
-        if (!newMatrix[i][colId]) { // Empty slot
-          newMatrix[i][colId] = moveValue;
+        if (!newBoard[i][colId]) { // Empty slot
+          newBoard[i][colId] = moveValue;
           return i; // rowId of slot that token was dropped ikn 
         } 
       }
@@ -135,7 +149,7 @@ function Game({returnToMenu}) {
       const winningLine = moveValue.toString().repeat(winningNumber);
 
       function checkRow(rowId) {
-				const rowArray = newMatrix[rowId];
+				const rowArray = newBoard[rowId];
         const rowString = rowArray.join('');
         const winningPosition = rowString.indexOf(winningLine);
         if (winningPosition !== -1) {
@@ -147,7 +161,7 @@ function Game({returnToMenu}) {
       }
 
       function checkCol(colId) {
-        const colArray = newMatrix.map((row, rowId) => newMatrix[rowId][colId]);
+        const colArray = newBoard.map((row, rowId) => newBoard[rowId][colId]);
         const colString = colArray.join('');
         const winningPosition = colString.indexOf(winningLine);
         if (winningPosition !== -1) {
@@ -164,7 +178,7 @@ function Game({returnToMenu}) {
         const endRow = rowId + Math.min(numRows - 1 - rowId, numCols - 1 - colId);
         const diagonalArray = [];
         for (let i=0; i <= endRow - startRow; i++) {
-          diagonalArray.push(newMatrix[startRow + i][startCol + i]);
+          diagonalArray.push(newBoard[startRow + i][startCol + i]);
         }
         const diagonalString = diagonalArray.join('');
         const winningPosition = diagonalString.indexOf(winningLine);
@@ -182,10 +196,9 @@ function Game({returnToMenu}) {
         const endRow = rowId - Math.min(rowId, numCols - 1 - colId);
         const diagonalArray = [];
         for (let i = 0; i <= startRow - endRow; i++) {
-          diagonalArray.push(newMatrix[startRow - i][startCol + i]);
+          diagonalArray.push(newBoard[startRow - i][startCol + i]);
         }
         const diagonalString = diagonalArray.join('');
-        console.log(diagonalString)
         const winningPosition = diagonalString.indexOf(winningLine);
         if (winningPosition !== -1) {
           setWinningPositions(
@@ -200,11 +213,12 @@ function Game({returnToMenu}) {
 
     const rowId = dropToken(colId); // rowId of slot that token was dropped in 
     if (rowId !== null) { // If token was dropped successfully, i.e. valid move was made
-      setBoardMatrix(newMatrix); 
+      setBoardHistory([...boardHistory, newBoard]); 
       setLastMovePosition([rowId, colId]); // [rowId, colId] of positon where token was dropped
 
       if (checkWin(rowId)) {
         setGameActive(false);
+        updateScores(moveNum % 2 === 0 ? 'yellow' : 'red');
 				return
       }
 
@@ -220,15 +234,18 @@ function Game({returnToMenu}) {
 			<div className='game-area'>
 
 				<div className='undo-restart'>
-					<button className='undo-btn'>
+					<button className='undo-btn' onClick={() => undoMove()}>
             <i className='fa fa-undo'></i>
           </button>
-					<button className='restart-btn'>
+          <button className='redo-btn' onClick={() => redoMove()}>
+            <i className='fa fa-arrow-right'></i>
+          </button>
+					<button className='restart-btn' onClick={() => undoMove()}>
             <i className='fa fa-refresh'></i>
           </button>
 				</div>
 
-        <Board boardMatrix={boardMatrix} ghostPosition={ghostPosition} lastMovePosition={lastMovePosition} winningPositions={winningPositions}/>
+        <Board boardMatrix={currentBoard} ghostPosition={ghostPosition} lastMovePosition={lastMovePosition} winningPositions={winningPositions}/>
 
         <div className='menu'>
           <button className='back-to-menu' onClick={() => returnToMenu()}>
