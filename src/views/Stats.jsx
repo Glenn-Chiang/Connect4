@@ -14,6 +14,10 @@ export default function Stats({scores, clearScores, returnToMenu}) {
           <span className='player'>Red</span>
           <span className='score'>{scores.red}</span>
         </div>
+        <div className="tie">
+          <span>Ties</span>
+          <span className='score'>{scores.ties}</span>
+        </div>
       </div>
       <div className='menu'>
         <button className='clear-scores' onClick={() => clearScores()}>

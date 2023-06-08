@@ -75,21 +75,23 @@ function DropBtnBar({numBtns, handleMove, handleHover, handleStopHover}) { // Ba
 function Game({updateScores, returnToMenu}) {
   const numRows = 6;
   const numCols = 7;
-  
+  const numSlots = numRows * numCols;
+
   function createBoardMatrix(numRows, numCols) {
     return Array.from({ length: numRows }, () => Array(numCols).fill(0));
   }
 
-  const [boardHistory, setBoardHistory] = useState([createBoardMatrix(numRows, numCols)]);
+  const [boardHistory, setBoardHistory] = useState([createBoardMatrix(numRows, numCols)]); // Array of matrices storing each state of the board
   const [moveNum, setMoveNum] = useState(0);	
-  const [moveHistory, setMoveHistory] = useState([null]);
+  const [moveHistory, setMoveHistory] = useState([null]); // Array of [rowId, colId] arrays storing the positions of each token played over the game
+  
   const [ghostPosition, setGhostPosition] = useState(null);
   const [winningPositions, setWinningPositions] = useState(null);
   
   const [gameActive, setGameActive] = useState(true);
   
-  const currentBoard = boardHistory[moveNum];
-  const lastMove = moveHistory[moveNum];
+  const currentBoard = boardHistory[moveNum]; 
+  const lastMove = moveHistory[moveNum]; 
   
   function handleHover(colId) { // When player hovers over drop-btn, ghost token is shown in board
     if (!gameActive) {
@@ -111,7 +113,7 @@ function Game({updateScores, returnToMenu}) {
   }
 
   function undoMove() {
-    if (moveNum === 0) {
+    if (moveNum === 0 || !gameActive) {
       return;
     }
     setMoveNum(moveNum - 1);
@@ -120,6 +122,8 @@ function Game({updateScores, returnToMenu}) {
   function restartGame() {
     setMoveNum(0);
     setBoardHistory([createBoardMatrix(numRows, numCols)]);
+    setWinningPositions(null);
+    setGameActive(true);
   }
 
   function handleMove(colId) {
@@ -218,7 +222,14 @@ function Game({updateScores, returnToMenu}) {
       if (checkWin(rowId)) {
         setGameActive(false);
         updateScores(moveNum % 2 === 0 ? 'yellow' : 'red');
-				return
+				return;
+      }
+
+      // If all slots are filled, end the game with a tie
+      if (moveNum === numSlots) {
+        setGameActive(false);
+        updateScores('tie');
+        return;    
       }
 
       setMoveNum(moveNum + 1);
@@ -258,12 +269,23 @@ function Game({updateScores, returnToMenu}) {
 
 function Prompt({ moveNum, gameActive }) {
   const player = moveNum % 2 === 0 ? 'Yellow' : 'Red';
-  const action = gameActive ? ' to move' : ' wins!';
+
+  let message = null;
+  if (moveNum === 42) {
+    message = 'Tie!';
+  }
+  else if (gameActive) {
+    const verb = ' to move';
+    message = <><span className={player.toLowerCase()}>{player}</span>{verb}</>
+
+  } else {
+    const verb = ' wins!'
+    message = <><span className={player.toLowerCase()}>{player}</span>{verb}</>
+  }
 
   return (
     <div className='prompt'>
-      <span className={player.toLowerCase()}>{player}</span>
-      <span className={action}>{action}</span>
+      {message}
     </div>
   )
 }

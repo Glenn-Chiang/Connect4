@@ -21,7 +21,7 @@ export default function App() {
   }
 
   // Scores
-  const [scores, setScores] = useState({yellow: 0, red: 0});
+  const [scores, setScores] = useState({yellow: 0, red: 0, ties: 0});
 
   function updateScores(winner) {
     const newScores = {...scores};
