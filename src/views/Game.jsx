@@ -222,7 +222,7 @@ function Game({updateScores, returnToMenu}) {
       if (checkWin(rowId)) {
         setGameActive(false);
         updateScores(moveNum % 2 === 0 ? 'yellow' : 'red');
-				return;
+				// return;
       }
 
       // If all slots are filled, end the game with a tie
@@ -231,7 +231,7 @@ function Game({updateScores, returnToMenu}) {
         updateScores('tie');
         return;    
       }
-
+      
       setMoveNum(moveNum + 1);
     }
   }

@@ -34,12 +34,12 @@ export default function App() {
   }
 
   const view = appState === 'main-menu' 
-                  ? <MainMenu startGame={startGame} viewStats={viewStats}/>
-                  : appState === 'game'
-                    ? <Game updateScores={updateScores} returnToMenu={returnToMenu} />
-                    : appState === 'stats'
-                      ? <Stats scores={scores} clearScores={clearScores} returnToMenu={returnToMenu} />
-                      : <></>
+                ? <MainMenu startGame={startGame} viewStats={viewStats}/>
+                : appState === 'game'
+                  ? <Game updateScores={updateScores} returnToMenu={returnToMenu} />
+                  : appState === 'stats'
+                    ? <Stats scores={scores} clearScores={clearScores} returnToMenu={returnToMenu} />
+                    : <></>
 
   return (
     <>
