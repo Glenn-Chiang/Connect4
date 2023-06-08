@@ -114,14 +114,7 @@ function Game({updateScores, returnToMenu}) {
     if (moveNum === 0) {
       return;
     }
-    setMoveNum(moveNum - 1  );
-  }
-
-  function redoMove() {
-    if (moveNum === boardHistory.length - 1) {
-      return;
-    }
-    setMoveNum(moveNum + 1);
+    setMoveNum(moveNum - 1);
   }
 
   function handleMove(colId) {
@@ -129,7 +122,7 @@ function Game({updateScores, returnToMenu}) {
 			return;
 		}
 
-    const newBoard = currentBoard.slice();
+    const newBoard = JSON.parse(JSON.stringify(currentBoard));
     const moveValue = moveNum % 2 === 0 ? 1 : 2;
 
     function dropToken(colId) {
@@ -213,7 +206,7 @@ function Game({updateScores, returnToMenu}) {
 
     const rowId = dropToken(colId); // rowId of slot that token was dropped in 
     if (rowId !== null) { // If token was dropped successfully, i.e. valid move was made
-      setBoardHistory([...boardHistory, newBoard]); 
+      setBoardHistory([...boardHistory.slice(0, moveNum + 1), newBoard]); 
       setLastMovePosition([rowId, colId]); // [rowId, colId] of positon where token was dropped
 
       if (checkWin(rowId)) {
@@ -236,9 +229,6 @@ function Game({updateScores, returnToMenu}) {
 				<div className='undo-restart'>
 					<button className='undo-btn' onClick={() => undoMove()}>
             <i className='fa fa-undo'></i>
-          </button>
-          <button className='redo-btn' onClick={() => redoMove()}>
-            <i className='fa fa-arrow-right'></i>
           </button>
 					<button className='restart-btn' onClick={() => undoMove()}>
             <i className='fa fa-refresh'></i>
