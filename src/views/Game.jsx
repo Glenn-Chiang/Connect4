@@ -222,14 +222,13 @@ function Game({updateScores, returnToMenu}) {
       if (checkWin(rowId)) {
         setGameActive(false);
         updateScores(moveNum % 2 === 0 ? 'yellow' : 'red');
-				// return;
       }
 
       // If all slots are filled, end the game with a tie
-      if (moveNum === numSlots) {
+      else if (moveNum === numSlots - 1) {
         setGameActive(false);
         updateScores('tie');
-        return;    
+        // return;    
       }
       
       setMoveNum(moveNum + 1);
@@ -268,17 +267,18 @@ function Game({updateScores, returnToMenu}) {
 }
 
 function Prompt({ moveNum, gameActive }) {
-  const player = moveNum % 2 === 0 ? 'Yellow' : 'Red';
-
+  
   let message = null;
   if (moveNum === 42) {
     message = 'Tie!';
   }
   else if (gameActive) {
+    const player = moveNum % 2 === 0 ? 'Yellow' : 'Red';
     const verb = ' to move';
     message = <><span className={player.toLowerCase()}>{player}</span>{verb}</>
 
   } else {
+    const player = moveNum % 2 === 0 ? 'Red' : 'Yellow';
     const verb = ' wins!'
     message = <><span className={player.toLowerCase()}>{player}</span>{verb}</>
   }
